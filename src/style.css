@@ -1,0 +1,376 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #111;
+}
+
+#hud {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #eee;
+  font: 13px/1.5 system-ui, sans-serif;
+  pointer-events: none;
+}
+
+#hud span {
+  display: block;
+  opacity: 0.7;
+}
+
+#hud .status {
+  margin-top: 4px;
+  color: #ffb27a;
+  font-weight: 600;
+  opacity: 1;
+}
+
+#hud .camera-mode {
+  margin-top: 4px;
+  opacity: 1;
+}
+
+#hud .hud-photos {
+  color: #ffd9a8;
+  opacity: 1;
+}
+
+#hud [hidden] {
+  display: none;
+}
+
+/* Puntos brillantes sobre las cámaras del rover. La posición la pone cameraHotspots.js con transform;
+   el pulso va en un hijo para no pisar esa posición. */
+#hotspots {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 900; /* debajo del panel lil-gui (1001) y del visor */
+}
+
+.hotspot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #ffcf7a;
+  box-shadow: 0 0 10px 3px rgba(255, 196, 110, 0.85);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.hotspot-glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 210, 140, 0.8);
+  animation: hotspot-pulse 1.6s ease-out infinite;
+}
+
+@keyframes hotspot-pulse {
+  from {
+    transform: scale(0.6);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+.hotspot-name {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font: 600 12px/1.4 system-ui, sans-serif;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+
+.hotspot:hover .hotspot-name,
+.hotspot:focus-visible .hotspot-name {
+  opacity: 1;
+}
+
+.hotspot:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}
+
+.hotspot.occluded {
+  opacity: 0.35;
+}
+
+.hotspot-leader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 1px;
+  background: rgba(255, 220, 170, 0.8);
+  transform-origin: 0 0;
+}
+
+.hotspot.off,
+.hotspot-leader.off {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hotspot-glow {
+    animation: none;
+  }
+}
+
+/* Visor de fotos reales. */
+#photo-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 2000; /* por encima del panel lil-gui */
+  display: grid;
+  place-items: center;
+  background: rgba(8, 5, 4, 0.92);
+  color: #eee;
+  font: 14px/1.5 system-ui, sans-serif;
+}
+
+#photo-viewer[hidden] {
+  display: none;
+}
+
+.photo-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: min(92vw, 1400px);
+}
+
+.photo-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  line-height: 0;
+}
+
+.photo {
+  display: block;
+  max-width: min(88vw, 1300px);
+  max-height: 72vh;
+  cursor: zoom-in;
+  transition: transform 0.25s ease;
+}
+
+.photo-frame.zoomed .photo {
+  cursor: zoom-out;
+}
+
+.photo-blade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: #000;
+  transform: translateY(-100%);
+  pointer-events: none;
+}
+
+.photo-blade-top {
+  top: 0;
+}
+
+.photo-blade-bottom {
+  bottom: 0;
+  transform: translateY(100%);
+}
+
+#photo-caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.photo-title {
+  font-size: 17px;
+}
+
+.photo-note {
+  opacity: 0.8;
+}
+
+.photo-link {
+  color: #ffcf9a;
+  font-size: 13px;
+}
+
+.photo-hint {
+  position: absolute;
+  bottom: 14px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 13px;
+  opacity: 0.6;
+  pointer-events: none; /* que nunca tape el enlace a la NASA */
+}
+
+/* En pantallas bajas (celular acostado) o táctiles, la ayuda de teclas tapa el rótulo y no sirve. */
+@media (max-height: 540px), (pointer: coarse) {
+  .photo-hint {
+    display: none;
+  }
+}
+
+.photo-button {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font: 28px/44px system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.photo-button:hover,
+.photo-button:focus-visible {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.photo-button[hidden] {
+  display: none;
+}
+
+.photo-close {
+  top: 16px;
+  right: 16px;
+}
+
+.photo-prev {
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.photo-next {
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.photo-flash {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Telemetría: abajo a la derecha. */
+#telemetry {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  min-width: 220px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #eee;
+  font: 12px/1.5 system-ui, sans-serif;
+  pointer-events: none;
+}
+
+#telemetry dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0 12px;
+  margin-top: 4px;
+}
+
+#telemetry dt {
+  opacity: 0.65;
+}
+
+#telemetry dd {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Vista de Mastcam-Z: viñeta, mira central y rótulo con el zoom. */
+#mastcam-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 160px rgba(0, 0, 0, 0.75);
+}
+
+#mastcam-overlay[hidden] {
+  display: none;
+}
+
+#mastcam-overlay .crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 56px;
+  height: 56px;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+}
+
+#mastcam-overlay .crosshair::before,
+#mastcam-overlay .crosshair::after {
+  content: '';
+  position: absolute;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+#mastcam-overlay .crosshair::before {
+  top: 50%;
+  left: -16px;
+  right: -16px;
+  height: 1px;
+}
+
+#mastcam-overlay .crosshair::after {
+  left: 50%;
+  top: -16px;
+  bottom: -16px;
+  width: 1px;
+}
+
+#mastcam-overlay .mastcam-label {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  color: rgba(255, 255, 255, 0.85);
+  font: 600 13px/1 ui-monospace, monospace;
+  letter-spacing: 0.08em;
+}

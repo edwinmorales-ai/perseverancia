@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mapa de Open MCT</title>
+<meta name="description" content="Cómo está armado Open MCT, el tablero de control web de la NASA, y cómo conectarle la telemetría del rover Perseverance (Percy).">
+<style>
+  :root {
+    --bg: #fbf7f2;
+    --surface: #ffffff;
+    --ink: #2a211c;
+    --muted: #6f625a;
+    --line: #e4d9cf;
+    --accent: #b5532d;
+    --accent-soft: #f6e3d8;
+    --core: #2f5d8a;
+    --core-soft: #e3edf7;
+    --data: #2f7a55;
+    --data-soft: #e2f2e9;
+    --code-bg: #f3ece5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17120f;
+      --surface: #211a16;
+      --ink: #f1e8e1;
+      --muted: #b7a79c;
+      --line: #3a2f29;
+      --accent: #f0905f;
+      --accent-soft: #3a2419;
+      --core: #8bb8e8;
+      --core-soft: #1c2a38;
+      --data: #7fd3a5;
+      --data-soft: #17302a;
+      --code-bg: #2a221d;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 17px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  main { max-width: 1180px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.15; margin: 0 0 12px; }
+  h2 { font-size: 26px; margin: 48px 0 12px; }
+  h3 { font-size: 19px; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--accent); }
+  code, .ref { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.86em; }
+  code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+  .lead { font-size: 21px; max-width: 46em; }
+  .kicker { color: var(--accent); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; font-size: 13px; }
+  .note { color: var(--muted); font-size: 15px; }
+  .glossary { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0 0; padding: 0; list-style: none; }
+  .glossary li { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 15px; }
+  .glossary strong { color: var(--accent); }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  .diagram { overflow-x: auto; padding: 12px; }
+  .diagram svg { display: block; width: 100%; min-width: 860px; height: auto; }
+  svg text { fill: var(--ink); font-family: system-ui, -apple-system, sans-serif; }
+  svg .box-core { fill: var(--core-soft); stroke: var(--core); }
+  svg .box-data { fill: var(--data-soft); stroke: var(--data); }
+  svg .box-live { fill: var(--accent-soft); stroke: var(--accent); }
+  svg .title { font-weight: 700; font-size: 15px; }
+  svg .tech { font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; fill: var(--muted); }
+  svg .path { font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; fill: var(--muted); }
+  svg a .refline { font-family: ui-monospace, Menlo, monospace; font-size: 12px; fill: var(--accent); text-decoration: underline; }
+  svg .lane { font-weight: 800; font-size: 13px; letter-spacing: 0.08em; }
+  svg .lane-core { fill: var(--core); }
+  svg .lane-data { fill: var(--data); }
+  svg .arrow { stroke: var(--muted); stroke-width: 2; fill: none; }
+  svg .dashed { stroke-dasharray: 6 5; }
+  svg .badge { fill: var(--data); }
+  svg .badge-text { fill: #fff; font-weight: 800; font-size: 13px; }
+  .steps { padding-left: 1.4em; }
+  .steps li { margin-bottom: 8px; }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+  .piece-number { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 800; margin-bottom: 8px; }
+  details { margin-top: 16px; }
+  summary { cursor: pointer; font-weight: 700; }
+  pre { background: var(--code-bg); border-radius: 8px; padding: 14px; overflow-x: auto; font-size: 13.5px; line-height: 1.5; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; vertical-align: top; padding: 10px; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+  th { color: var(--muted); font-weight: 600; }
+  .ok { color: var(--data); font-weight: 700; white-space: nowrap; }
+  .commit dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 0; }
+  .commit dt { color: var(--muted); }
+  .commit dd { margin: 0; }
+  footer { margin-top: 48px; color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<main>
+
+<p class="kicker">Mapa del repositorio · nasa/openmct</p>
+<h1>¿Qué es Open MCT y cómo le mostramos la telemetría de Percy?</h1>
+<p class="lead"><strong>Open MCT es el tablero de control que la NASA usa en una página web: junta en pantallas los datos que mandan sus naves y robots para verlos en vivo, en gráficas y tablas.</strong></p>
+<p>Por dentro tiene un <strong>núcleo</strong> pequeño al que se le <strong>enchufan piezas</strong> (plugins). Cada fuente de datos, cada tipo de gráfica y cada pantalla es una de esas piezas. Para mostrar a Percy (Perseverance) hay que escribir <em>una pieza más</em>.</p>
+
+<ul class="glossary" aria-label="Glosario">
+  <li><strong>Plugin</strong>: pieza que se enchufa al núcleo.</li>
+  <li><strong>Proveedor</strong>: quien entrega los datos.</li>
+  <li><strong>Pedido</strong> (request): «dame lo que pasó antes».</li>
+  <li><strong>Suscripción</strong> (subscribe): «avísame en vivo».</li>
+  <li><strong>archivo:línea</strong>: dónde está cada cosa en el código.</li>
+</ul>
+
+<h2>El mapa en un dibujo</h2>
+<p>Arriba, cómo está armado. Abajo, el viaje de un dato desde quien lo produce hasta la línea de la gráfica. Cada caja dice en qué archivo y línea pasa; el enlace abre esa línea exacta en GitHub (en el commit analizado).</p>
+
+<div class="card diagram">
+<svg viewBox="0 0 1160 660" role="img" aria-labelledby="diagram-title diagram-desc">
+  <title id="diagram-title">Diagrama de Open MCT: núcleo, plugins y viaje de un dato de telemetría</title>
+  <desc id="diagram-desc">Fila de arriba: nace Open MCT, el núcleo arma sus servicios, el enchufe de plugins, los plugins de serie, la app arranca y se elige la vista. Fila de abajo: se registra el proveedor, la gráfica pide datos, el núcleo busca al proveedor, nace el dato, la serie avisa que llegó un punto y se dibuja con la GPU. Debajo, el camino en vivo.</desc>
+  <defs>
+    <marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8a7b70"/>
+    </marker>
+  </defs>
+
+  <!-- Carril 1: núcleo y plugins -->
+  <text class="lane lane-core" x="20" y="34">CÓMO ESTÁ ARMADO · NÚCLEO Y PLUGINS</text>
+
+  <g>
+    <rect class="box-core" x="20" y="50" width="170" height="140" rx="12" stroke-width="2"/>
+    <text class="title" x="32" y="78">Nace Open MCT</text>
+    <text class="tech" x="32" y="100">new MCT()</text>
+    <text class="path" x="32" y="160">(raíz del repo)</text>
+    <a href="https://github.com/nasa/openmct/blob/e09bfaf47856b2b7ae2ea74334800b26fd27a41e/openmct.js#L35"><text class="refline" x="32" y="178">openmct.js:35</text></a>
+  </g>
+  <g>
+    <rect class="box-core" x="210" y="50" width="170" height="140" rx="12" stroke-width="2"/>
+    <text class="title" x="222" y="78">El núcleo arma</text>
+    <text class="title" x="222" y="96">sus servicios</text>
+    <text class="tech" x="222" y="118">objetos, telemetría…</text>
+    <text class="path" x="222" y="160">src/</text>
+    <a href="https://github.com/nasa/openmct/blob/e09bfaf47856b2b7ae2ea74334800b26fd27a41e/src/MCT.js#L183"><text class="refline" x="222" y="178">MCT.js:183</text></a>
+  </g>
+  <g>
+    <rect class="box-core" x="400" y="50" width="170" height="140" rx="12" stroke-width="2"/>
+    <text class="title" x="412" y="78">El enchufe</text>
+    <text class="title" x="412" y="96">de plugins</text>
+    <text class="tech" x="412" y="118">plugin(this)</text>
+    <text class="path" x="412" y="160">src/</text>
+    <a href="https://github.com/nasa/openmct/blob/e09bfaf47856b2b7ae2ea74334800b26fd27a41e/src/MCT.js#L436"><text class="refline" x="412" y="178">MCT.js:436</text></a>
+  </g>
+  <g>
+    <rect class="box-core" x="590" y="50" width="170" height="140" rx="12" stroke-width="2"/>
+    <text class="title" x="602" y="78">Plugins de serie</text>
+    <text class="title" x="602" y="96">(Plot y 30 más)</text>
+    <text class="tech" x="602" y="118">install(Plot())</text>
+    <text class="path" x="602" y="160">src/</text>
+    <a href="https://github.com/nasa/openmct/blob/e09bfaf47856b2b7ae2ea74334800b26fd27a41e/src/MCT.js#L285"><text class="refline" x="602" y="178">MCT.js:285</text></a>
+  </g>
+  <g>
+    <rect class="box-core" x="780" y="50" width="170" height="140" rx="12" stroke-width="2"/>
+    <text class="title" x="792" y="78">La app elige</text>
+    <text class="title" x="792" y="96">y arranca</text>
+    <text class="tech" x="792" y="118">openmct.start()</text>
+    <text class="path" x="792" y="160">(raíz del repo)</text>
+    <a href="https://github.com/nasa/openmct/blob/e09bfaf47856b2b7ae2ea74334800b26fd27a41e/index.html#L240"><text class="refline" x="792" y="178">index.html:240</text></a>
+  </g>
+  <g>
+    <rect class="box-core" x="970" y="50" width="170" height="140" rx="12" stroke-width="2"/>
+    <text class="title" x="982" y="78">Elige la vista</text>
+    <text class="title" x="982" y="96">de cada objeto</text>
+    <text class="tech" x="982" y="118">canView()</text>
+    <text class="path" x="982" y="160">src/ui/registries/</text>
+    <a href="https://github.com/nasa/openmct/blob/e09bfaf47856b2b7ae2ea74334800b26fd27a41e/src/ui/registries/ViewRegistry.js#L60"><text class="refline" x="982" y="178">ViewRegistry.js:60</text></a>
+  </g>
+  <path class="arrow" d="M190 120 H208" marker-end="url(#head)"/>
+  <path class="arrow" d="M380 120 H398" marker-end="url(#head)"/>
+  <path class="arrow" d="M570 120 H588" marker-end="url(#head)"/>
+  <path class="arrow" d="M760 120 H778" marker-end="url(#head)"/>
+  <path class="arrow" d="M950 120 H968" marker-end="url(#head)"/>
+
+  <!-- Conectores entre carriles -->
+  <path class="arrow dashed" d="M485 190 V230 H105 V292" marker-end="url(#head)"/>
+  <text class="tech" x="118" y="252">un proveedor de datos también se enchufa como plugin</text>
+  <path class="arrow dashed" d="M675 190 V270 H295 V292" marker-end="url(#head)"/>
+  <text class="tech" x="430" y="284">el plugin Plot pone la gráfica</text>
+
+  <!-- Carril 2: viaje de un dato -->
+  <text class="lane lane-data" x="20" y="320">EL VIAJE DE UN DATO · DEL PROVEEDOR A LA GRÁFICA (HISTORIAL)</text>
+
+  <g>
+    <rect class="box-data" x="20" y="336" width="170" height="150" rx="12" stroke-width="2"/>
+    <circle class="badge" cx="38" cy="356" r="12"/><text class="badge-text" x="34" y="361">1</text>
+    <text class="title" x="56" y="361">Se registra</text>
+    <text class="title" x="32" y="382">el proveedor</text>
+    <text class="tech" x="32" y="404">telemetry.addProvider</text>
+    <text class="path" x="32" y="458">example/generator/</text>
+    <a href="https://github.com/nasa/openmct/blob/e09bfaf47856b2b7ae2ea74334800b26fd27a41e/example/generator/plugin.js#L166"><text class="refline" x="32" y="476">plugin.js:166</text></a>
+  </g>
+  <g>
+    <rect class="box-data" x="210" y="336" width="170" height="150" rx="12" stroke-width="2"/>
+    <circle class="badge" cx="228" cy="356" r="12"/><text class="badge-text" x="224" y="361">2</text>
+    <text class="title" x="246" y="361">La gráfica</text>
+    <text class="title" x="222" y="382">pide los datos</text>
+    <text class="tech" x="222" y="404">telemetry.request</text>
+    <text class="path" x="222" y="442">src/plugins/plot/</text>
+    <text class="path" x="222" y="458">configuration/</text>
+    <a href="https://github.com/nasa/openmct/blob/e09bfaf47856b2b7ae2ea74334800b26fd27a41e/src/plugins/plot/configuration/PlotSeries.js#L228"><text class="refline" x="222" y="476">PlotSeries.js:228</text></a>
+  </g>
+  <g>
+    <rect class="box-data" x="400" y="336" width="170" height="150" rx="12" stroke-width="2"/>
+    <circle class="badge" cx="418" cy="356" r="12"/><text class="badge-text" x="414" y="361">3</text>
+    <text class="title" x="436" y="361">El núcleo busca</text>
+    <text class="title" x="412" y="382">al proveedor</text>
+    <text class="tech" x="412" y="404">provider.request</text>
+    <text class="path" x="412" y="458">src/api/telemetry/</text>
+    <a href="https://github.com/nasa/openmct/blob/e09bfaf47856b2b7ae2ea74334800b26fd27a41e/src/api/telemetry/TelemetryAPI.js#L495"><text class="refline" x="412" y="476">TelemetryAPI.js:495</text></a>
+  </g>
+  <g>
+    <rect class="box-data" x="590" y="336" width="170" height="150" rx="12" stroke-width="2"/>
+    <circle class="badge" cx="608" cy="356" r="12"/><text class="badge-text" x="604" y="361">4</text>
+    <text class="title" x="626" y="361">Nace el dato</text>
+    <text class="tech" x="602" y="384">{ utc: hora,</text>
+    <text class="tech" x="602" y="400">  sin: valor }</text>
+    <text class="path" x="602" y="458">example/generator/</text>
+    <a href="https://github.com/nasa/openmct/blob/e09bfaf47856b2b7ae2ea74334800b26fd27a41e/example/generator/generatorWorker.js#L175"><text class="refline" x="602" y="476">generatorWorker.js:175</text></a>
+  </g>
+  <g>
+    <rect class="box-data" x="780" y="336" width="170" height="150" rx="12" stroke-width="2"/>
+    <circle class="badge" cx="798" cy="356" r="12"/><text class="badge-text" x="794" y="361">5</text>
+    <text class="title" x="816" y="361">«¡Llegó</text>
+    <text class="title" x="792" y="382">un punto!»</text>
+    <text class="tech" x="792" y="404">emit('add')</text>
+    <text class="path" x="792" y="442">src/plugins/plot/</text>
+    <text class="path" x="792" y="458">configuration/</text>
+    <a href="https://github.com/nasa/openmct/blob/e09bfaf47856b2b7ae2ea74334800b26fd27a41e/src/plugins/plot/configuration/PlotSeries.js#L471"><text class="refline" x="792" y="476">PlotSeries.js:471</text></a>
+  </g>
+  <g>
+    <rect class="box-data" x="970" y="336" width="170" height="150" rx="12" stroke-width="2"/>
+    <circle class="badge" cx="988" cy="356" r="12"/><text class="badge-text" x="984" y="361">6</text>
+    <text class="title" x="1006" y="361">Se dibuja</text>
+    <text class="title" x="982" y="382">con la GPU</text>
+    <text class="tech" x="982" y="404">gl.drawArrays</text>
+    <text class="path" x="982" y="458">src/plugins/plot/draw/</text>
+    <a href="https://github.com/nasa/openmct/blob/e09bfaf47856b2b7ae2ea74334800b26fd27a41e/src/plugins/plot/draw/DrawWebGL.js#L204"><text class="refline" x="982" y="476">DrawWebGL.js:204</text></a>
+  </g>
+  <path class="arrow" d="M190 411 H208" marker-end="url(#head)"/>
+  <path class="arrow" d="M380 411 H398" marker-end="url(#head)"/>
+  <path class="arrow" d="M570 411 H588" marker-end="url(#head)"/>
+  <path class="arrow" d="M760 411 H778" marker-end="url(#head)"/>
+  <path class="arrow" d="M950 411 H968" marker-end="url(#head)"/>
+
+  <!-- En vivo -->
+  <rect class="box-live" x="20" y="520" width="1120" height="118" rx="12" stroke-width="2"/>
+  <text class="title" x="36" y="548">En vivo es casi igual: la gráfica se suscribe una vez y el proveedor manda cada punto nuevo sin que nadie lo pida.</text>
+  <a href="https://github.com/nasa/openmct/blob/e09bfaf47856b2b7ae2ea74334800b26fd27a41e/src/plugins/plot/configuration/PlotSeries.js#L214"><text class="refline" x="36" y="582">PlotSeries.js:214</text></a>
+  <text class="tech" x="170" y="582">se suscribe</text>
+  <path class="arrow" d="M258 578 H290" marker-end="url(#head)"/>
+  <a href="https://github.com/nasa/openmct/blob/e09bfaf47856b2b7ae2ea74334800b26fd27a41e/src/api/telemetry/TelemetryAPI.js#L560"><text class="refline" x="300" y="582">TelemetryAPI.js:560</text></a>
+  <text class="tech" x="450" y="582">el núcleo avisa al proveedor</text>
+  <path class="arrow" d="M640 578 H672" marker-end="url(#head)"/>
+  <a href="https://github.com/nasa/openmct/blob/e09bfaf47856b2b7ae2ea74334800b26fd27a41e/example/generator/GeneratorProvider.js#L104"><text class="refline" x="682" y="582">GeneratorProvider.js:104</text></a>
+  <text class="tech" x="870" y="582">abre el canal</text>
+  <text class="tech" x="36" y="616">…y cada punto que llega sigue igual que en los pasos 5 y 6.</text>
+</svg>
+</div>
+
+<details>
+  <summary>El mismo diagrama, como lista (para leer o copiar)</summary>
+  <h3>Cómo está armado</h3>
+  <ol class="steps">
+    <li><strong>Nace Open MCT.</strong> Se crea un único objeto <code>openmct</code> — <span class="ref">openmct.js:35</span></li>
+    <li><strong>El núcleo arma sus servicios</strong> (objetos, tipos, vistas, telemetría…) — <span class="ref">src/MCT.js:175</span> objetos, <span class="ref">src/MCT.js:183</span> telemetría</li>
+    <li><strong>El enchufe de plugins:</strong> instalar un plugin es solo llamarlo con <code>openmct</code> — <span class="ref">src/MCT.js:436</span></li>
+    <li><strong>Plugins de serie:</strong> 31 que se instalan siempre, empezando por la gráfica (Plot) — <span class="ref">src/MCT.js:285</span></li>
+    <li><strong>La app elige sus plugins y arranca</strong> (instala el generador de ejemplo y luego <code>start</code>) — <span class="ref">index.html:104</span> y <span class="ref">index.html:240</span></li>
+    <li><strong>Elige la vista</strong> preguntándole a cada vista si puede mostrar el objeto — <span class="ref">src/ui/registries/ViewRegistry.js:60</span></li>
+  </ol>
+  <h3>El viaje de un dato (historial)</h3>
+  <ol class="steps">
+    <li><strong>Se registra el proveedor</strong> de datos de ejemplo (onda seno) — <span class="ref">example/generator/plugin.js:166</span></li>
+    <li><strong>La gráfica pide los datos</strong> del rango de tiempo visible — <span class="ref">src/plugins/plot/configuration/PlotSeries.js:228</span></li>
+    <li><strong>El núcleo busca al proveedor</strong> que sabe responder y le pasa el pedido — <span class="ref">src/api/telemetry/TelemetryAPI.js:495</span></li>
+    <li><strong>Nace el dato</strong> <code>{ utc, sin }</code> en un trabajador en segundo plano — <span class="ref">example/generator/generatorWorker.js:175</span></li>
+    <li><strong>«¡Llegó un punto!»:</strong> la serie lo guarda y avisa — <span class="ref">src/plugins/plot/configuration/PlotSeries.js:471</span></li>
+    <li><strong>Se dibuja</strong> la línea con la tarjeta gráfica (WebGL) — <span class="ref">src/plugins/plot/draw/DrawWebGL.js:204</span></li>
+  </ol>
+  <p><strong>En vivo:</strong> <span class="ref">src/plugins/plot/configuration/PlotSeries.js:214</span> (se suscribe) → <span class="ref">src/api/telemetry/TelemetryAPI.js:560</span> (el núcleo avisa al proveedor) → <span class="ref">example/generator/GeneratorProvider.js:104</span> (abre el canal) → pasos 5 y 6.</p>
+</details>
+
+<h2>Las 5 piezas para conectar a Percy</h2>
+<p>Con estas cinco piezas, Open MCT ya sabe qué es Percy, dónde mostrarlo y de dónde sacar sus datos. La gráfica viene incluida: es un plugin de serie (<span class="ref">src/MCT.js:285</span>) y aparece sola cuando un objeto tiene un número para dibujar (<span class="ref">src/plugins/plot/PlotViewProvider.js:39</span>).</p>
+<div class="grid">
+  <div class="card">
+    <span class="piece-number">1</span>
+    <h3>El plugin (el enchufe)</h3>
+    <p>Una función que recibe <code>openmct</code> y registra todo lo de Percy.</p>
+    <p class="note ref">src/MCT.js:435–436</p>
+  </div>
+  <div class="card">
+    <span class="piece-number">2</span>
+    <h3>El tipo de objeto</h3>
+    <p>Le dice a Open MCT qué es «una medición de Percy» (nombre e ícono).</p>
+    <p class="note ref">src/api/types/TypeRegistry.js:59</p>
+  </div>
+  <div class="card">
+    <span class="piece-number">3</span>
+    <h3>La raíz y el proveedor de objetos</h3>
+    <p>Crea la carpeta «Percy» en el árbol de la izquierda y entrega sus mediciones (velocidad, rumbo…).</p>
+    <p class="note ref">src/api/objects/ObjectAPI.js:498 y :168</p>
+  </div>
+  <div class="card">
+    <span class="piece-number">4</span>
+    <h3>Las etiquetas de cada valor</h3>
+    <p>Cuál número es la hora (eje horizontal, <code>utc</code> con <em>domain</em>) y cuál es la medida (eje vertical, <em>range</em>).</p>
+    <p class="note ref">example/generator/GeneratorMetadataProvider.js:10–14 y :45–50 · src/plugins/plot/configuration/XAxisModel.js:103</p>
+  </div>
+  <div class="card">
+    <span class="piece-number">5</span>
+    <h3>El proveedor de telemetría</h3>
+    <p>Responde «lo que pasó antes» (<em>request</em>) y «avísame en vivo» (<em>subscribe</em>). El último registrado gana.</p>
+    <p class="note ref">src/api/telemetry/TelemetryAPI.js:167–169 · example/generator/GeneratorProvider.js:98 y :104</p>
+  </div>
+</div>
+
+<h2>Cómo conectamos Percy</h2>
+<p class="note">Es un plan: no se instaló nada. Aclaración honesta: la NASA no publica la telemetría de ingeniería de Perseverance en vivo. «Percy» aquí es <strong>nuestro rover simulado</strong>, que ya calcula su telemetría en <code>src/ui/telemetry.js</code>.</p>
+<ol class="steps">
+  <li><strong>Elegir qué medir.</strong> De la telemetría del simulador, los valores numéricos: velocidad (cm/s), recorrido (m), rumbo (°), cabeceo y alabeo (°), posición x/z (m) y muestras. El estado y lo de Ingenuity son texto: van en una tabla, no en una gráfica (Open MCT solo ofrece gráfica si hay un número, <span class="ref">src/api/telemetry/TelemetryAPI.js:322</span>). La energía es un valor fijo, no una medición.</li>
+  <li><strong>Transmitir desde el simulador.</strong> En <code>update()</code> de <code>src/ui/telemetry.js</code>, que ya corre 10 veces por segundo, mandar cada lectura por un canal del navegador: <code>new BroadcastChannel('percy-telemetria').postMessage({ utc: Date.now(), velocidad, rumbo, … })</code>. La hora va en <code>utc</code> porque es la clave del eje horizontal (<span class="ref">src/plugins/plot/configuration/XAxisModel.js:103</span>).</li>
+  <li><strong>Hacer una página de control</strong> (por ejemplo <code>control.html</code>) servida desde el mismo sitio que el simulador, que cargue Open MCT e instale el sistema de tiempo UTC y el conductor de tiempo, igual que el ejemplo (<span class="ref">index.html:119</span> y <span class="ref">index.html:131</span>). Cargar Open MCT necesita descargarlo (npm o un CDN): eso se hará más adelante y solo con permiso.</li>
+  <li><strong>Escribir el plugin de Percy</strong> con las piezas 1 a 4: tipo <code>percy.medicion</code>, raíz <code>percy:rover</code>, una carpeta con una medición por cada valor, y en cada una <code>telemetry.values</code> con <code>utc</code> (domain) y el valor (range).</li>
+  <li><strong>Agregar el proveedor de telemetría</strong> (pieza 5): <code>subscribe</code> escucha el canal y pasa cada lectura a la gráfica; <code>request</code> devuelve lo guardado en un búfer de los últimos minutos para el historial.</li>
+  <li><strong>Instalar y arrancar:</strong> <code>openmct.install(PercyPlugin())</code> y <code>openmct.start()</code>. En el árbol aparece «Percy › Velocidad» con su gráfica, que viene de serie.</li>
+  <li><strong>Probar con dos ventanas lado a lado</strong> (no pestañas): una pestaña oculta pausa la simulación y la gráfica se quedaría quieta.</li>
+  <li><strong>Para una misión de verdad,</strong> cambiar el canal del navegador por un WebSocket con un servidor, que es lo que hacen las misiones reales.</li>
+</ol>
+
+<details>
+  <summary>Para curiosos: cómo se vería el plugin (esquema)</summary>
+<pre><code>function PercyPlugin() {
+  return function install(openmct) {
+    openmct.types.addType('percy.medicion', { name: 'Medición de Percy', cssClass: 'icon-telemetry' });
+    openmct.objects.addRoot({ namespace: 'percy', key: 'rover' });
+    openmct.objects.addProvider('percy', { get: (id) =&gt; /* carpeta o medición */ });
+
+    const canal = new BroadcastChannel('percy-telemetria');
+    openmct.telemetry.addProvider({
+      supportsSubscribe: (objeto) =&gt; objeto.type === 'percy.medicion',
+      subscribe(objeto, avisar) {
+        const alLlegar = ({ data }) =&gt; avisar({ utc: data.utc, value: data[objeto.identifier.key] });
+        canal.addEventListener('message', alLlegar);
+        return () =&gt; canal.removeEventListener('message', alLlegar);
+      },
+      supportsRequest: (objeto) =&gt; objeto.type === 'percy.medicion',
+      request: (objeto, { start, end }) =&gt; /* lecturas guardadas entre start y end */
+    });
+  };
+}</code></pre>
+</details>
+
+<h2>Comprobaciones</h2>
+<p>Antes de entregar volví a abrir en el código tres referencias del dibujo (una de cómo está armado y dos del viaje del dato) y confirmé que la línea hace lo que dice la caja.</p>
+<div class="card">
+<table>
+  <thead><tr><th>Referencia</th><th>Lo que dice la caja</th><th>Línea real del código</th><th>Resultado</th></tr></thead>
+  <tbody>
+    <tr><td class="ref">src/MCT.js:436</td><td>El enchufe de plugins: <code>plugin(this)</code></td><td><code>plugin(this);</code> dentro de <code>install(plugin) {</code> (línea 435)</td><td class="ok">✓ Coincide</td></tr>
+    <tr><td class="ref">src/plugins/plot/configuration/PlotSeries.js:228</td><td>2 · La gráfica pide los datos: <code>telemetry.request</code></td><td><code>const points = await this.openmct.telemetry.request(this.domainObject, options);</code></td><td class="ok">✓ Coincide</td></tr>
+    <tr><td class="ref">src/api/telemetry/TelemetryAPI.js:495</td><td>3 · El núcleo busca al proveedor: <code>provider.request</code></td><td><code>const telemetry = await provider.request(...arguments);</code></td><td class="ok">✓ Coincide</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>El commit analizado</h2>
+<div class="card commit">
+<dl>
+  <dt>Repositorio</dt><dd><a href="https://github.com/nasa/openmct">github.com/nasa/openmct</a> · rama <code>master</code> · versión 4.3.1</dd>
+  <dt>Commit</dt><dd><a href="https://github.com/nasa/openmct/commit/e09bfaf47856b2b7ae2ea74334800b26fd27a41e"><code>e09bfaf</code></a> (<code class="ref">e09bfaf47856b2b7ae2ea74334800b26fd27a41e</code>)</dd>
+  <dt>Fecha</dt><dd>6 de octubre de 2026, 17:01 (hora del Pacífico) = 7 de octubre, 00:01 UTC</dd>
+  <dt>Autor</dt><dd>John Hill</dd>
+  <dt>Mensaje</dt><dd>«[Documentation] Add AGENTS.md contributor guidance (#8379)» — agrega una guía para colaboradores.</dd>
+  <dt>Sin cambios</dt><dd>Se clonó solo esa versión y se leyó sin instalar nada; <code>git status --porcelain</code> salió vacío.</dd>
+</dl>
+</div>
+
+<footer>
+  Hecho para el proyecto Perseverancia (simulación 3D del rover). Las referencias apuntan al commit analizado, así siguen siendo válidas aunque el repositorio cambie.
+</footer>
+
+</main>
+</body>
+</html>

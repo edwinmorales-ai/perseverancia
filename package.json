@@ -1,0 +1,20 @@
+{
+  "name": "perseverancia",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "node scripts/check.mjs"
+  },
+  "dependencies": {
+    "lil-gui": "^0.21.0",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.64.1",
+    "vite": "^8.3.5"
+  }
+}

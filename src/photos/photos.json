@@ -1,0 +1,147 @@
+{
+  "curatedAt": "2026-10-24",
+  "source": "https://mars.nasa.gov/rss/api/?feed=raw_images&category=mars2020",
+  "cameras": {
+    "Mastcam_Z_cams": {
+      "label": "Mastcam-Z",
+      "photos": [
+        {
+          "id": "ZR0_2012_0845557157_519EBY_N0920000ZCAM04489_1100LMJ",
+          "cameraLabel": "Mastcam-Z derecha",
+          "sol": 2012,
+          "takenUtc": "2026-10-18T01:24:30.109Z",
+          "src": "photos/Mastcam_Z_cams/ZR0_2012_0845557157_519EBY_N0920000ZCAM04489_1100LMJ.jpg",
+          "fullRes": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02012/ids/edr/browse/zcam/ZR0_2012_0845557157_519EBY_N0920000ZCAM04489_1100LMJ01.png",
+          "link": "https://mars.nasa.gov/mars2020/multimedia/raw-images/ZR0_2012_0845557157_519EBY_N0920000ZCAM04489_1100LMJ",
+          "credit": "NASA/JPL-Caltech/ASU",
+          "nota": "Parche circular de abrasión y zona limpiada sobre una roca"
+        },
+        {
+          "id": "ZL0_2013_0845643693_400EBY_N0920000ZCAM10046_0480LMJ",
+          "cameraLabel": "Mastcam-Z izquierda",
+          "sol": 2013,
+          "takenUtc": "2026-10-19T01:26:56.795Z",
+          "src": "photos/Mastcam_Z_cams/ZL0_2013_0845643693_400EBY_N0920000ZCAM10046_0480LMJ.jpg",
+          "fullRes": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02013/ids/edr/browse/zcam/ZL0_2013_0845643693_400EBY_N0920000ZCAM10046_0480LMJ01.png",
+          "link": "https://mars.nasa.gov/mars2020/multimedia/raw-images/ZL0_2013_0845643693_400EBY_N0920000ZCAM10046_0480LMJ",
+          "credit": "NASA/JPL-Caltech/ASU",
+          "nota": "Huellas de las ruedas del rover sobre el suelo rojizo"
+        },
+        {
+          "id": "ZL0_2009_0845291527_473EBY_N0911496ZCAM10042_1100LMJ",
+          "cameraLabel": "Mastcam-Z izquierda",
+          "sol": 2009,
+          "takenUtc": "2026-10-14T23:37:29.994Z",
+          "src": "photos/Mastcam_Z_cams/ZL0_2009_0845291527_473EBY_N0911496ZCAM10042_1100LMJ.jpg",
+          "fullRes": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02009/ids/edr/browse/zcam/ZL0_2009_0845291527_473EBY_N0911496ZCAM10042_1100LMJ01.png",
+          "link": "https://mars.nasa.gov/mars2020/multimedia/raw-images/ZL0_2009_0845291527_473EBY_N0911496ZCAM10042_1100LMJ",
+          "credit": "NASA/JPL-Caltech/ASU",
+          "nota": "Grupo de rocas grandes con sombras sobre arena rojiza"
+        },
+        {
+          "id": "ZR0_2013_0845643031_659EBY_N0920000ZCAM10044_1100LMJ",
+          "cameraLabel": "Mastcam-Z derecha",
+          "sol": 2013,
+          "takenUtc": "2026-10-19T01:17:26.795Z",
+          "src": "photos/Mastcam_Z_cams/ZR0_2013_0845643031_659EBY_N0920000ZCAM10044_1100LMJ.jpg",
+          "fullRes": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02013/ids/edr/browse/zcam/ZR0_2013_0845643031_659EBY_N0920000ZCAM10044_1100LMJ01.png",
+          "link": "https://mars.nasa.gov/mars2020/multimedia/raw-images/ZR0_2013_0845643031_659EBY_N0920000ZCAM10044_1100LMJ",
+          "credit": "NASA/JPL-Caltech/ASU",
+          "nota": "Roca junto a una hondonada de arena esculpida por el viento"
+        },
+        {
+          "id": "ZL0_2012_0845557275_785EBY_N0920000ZCAM04490_1100LMJ",
+          "cameraLabel": "Mastcam-Z izquierda",
+          "sol": 2012,
+          "takenUtc": "2026-10-18T01:26:28.112Z",
+          "src": "photos/Mastcam_Z_cams/ZL0_2012_0845557275_785EBY_N0920000ZCAM04490_1100LMJ.jpg",
+          "fullRes": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02012/ids/edr/browse/zcam/ZL0_2012_0845557275_785EBY_N0920000ZCAM04490_1100LMJ01.png",
+          "link": "https://mars.nasa.gov/mars2020/multimedia/raw-images/ZL0_2012_0845557275_785EBY_N0920000ZCAM04490_1100LMJ",
+          "credit": "NASA/JPL-Caltech/ASU",
+          "nota": "Roca oscura y porosa junto a rocas claras sobre la arena"
+        }
+      ]
+    },
+    "NavCams": {
+      "label": "NavCams",
+      "photos": [
+        {
+          "id": "NLF_2009_0845298532_239ECM_N0911542NCAM00301_01_295J",
+          "cameraLabel": "NavCam izquierda",
+          "sol": 2009,
+          "takenUtc": "2026-10-15T01:33:58.634Z",
+          "src": "photos/NavCams/NLF_2009_0845298532_239ECM_N0911542NCAM00301_01_295J.jpg",
+          "fullRes": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02009/ids/edr/browse/ncam/NLF_2009_0845298532_239ECM_N0911542NCAM00301_01_295J01.png",
+          "link": "https://mars.nasa.gov/mars2020/multimedia/raw-images/NLF_2009_0845298532_239ECM_N0911542NCAM00301_01_295J",
+          "credit": "NASA/JPL-Caltech",
+          "nota": "Terreno rocoso con huellas, una colina al fondo y la sombra del rover"
+        }
+      ]
+    },
+    "hazcams_front": {
+      "label": "Hazcams delanteras",
+      "photos": [
+        {
+          "id": "FLF_2017_0846009912_053ECM_N0920000FHAZ00215_01_275J",
+          "cameraLabel": "Hazcam delantera izquierda",
+          "sol": 2017,
+          "takenUtc": "2026-10-23T07:10:23.924Z",
+          "src": "photos/hazcams_front/FLF_2017_0846009912_053ECM_N0920000FHAZ00215_01_275J.jpg",
+          "fullRes": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02017/ids/edr/browse/fcam/FLF_2017_0846009912_053ECM_N0920000FHAZ00215_01_275J01.png",
+          "link": "https://mars.nasa.gov/mars2020/multimedia/raw-images/FLF_2017_0846009912_053ECM_N0920000FHAZ00215_01_275J",
+          "credit": "NASA/JPL-Caltech",
+          "nota": "La torreta del brazo sobre las rocas, con una colina al fondo"
+        }
+      ]
+    },
+    "WATSON": {
+      "label": "WATSON",
+      "photos": [
+        {
+          "id": "SIF_2011_0845479843_968EBY_N0920000SRLC02505_0000LMJ",
+          "cameraLabel": "WATSON",
+          "sol": 2011,
+          "takenUtc": "2026-10-17T03:55:54.495Z",
+          "src": "photos/WATSON/SIF_2011_0845479843_968EBY_N0920000SRLC02505_0000LMJ.jpg",
+          "fullRes": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02011/ids/edr/browse/shrlc/SIF_2011_0845479843_968EBY_N0920000SRLC02505_0000LMJ01.png",
+          "link": "https://mars.nasa.gov/mars2020/multimedia/raw-images/SIF_2011_0845479843_968EBY_N0920000SRLC02505_0000LMJ",
+          "credit": "NASA/JPL-Caltech",
+          "nota": "Parche circular que el brazo raspó en una roca rojiza con vetas blancas"
+        },
+        {
+          "id": "SIF_2004_0844875424_238EBY_N0910970SRLC08065_0000LMJ",
+          "cameraLabel": "WATSON",
+          "sol": 2004,
+          "takenUtc": "2026-10-10T04:02:30.681Z",
+          "src": "photos/WATSON/SIF_2004_0844875424_238EBY_N0910970SRLC08065_0000LMJ.jpg",
+          "fullRes": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02004/ids/edr/browse/shrlc/SIF_2004_0844875424_238EBY_N0910970SRLC08065_0000LMJ01.png",
+          "link": "https://mars.nasa.gov/mars2020/multimedia/raw-images/SIF_2004_0844875424_238EBY_N0910970SRLC08065_0000LMJ",
+          "credit": "NASA/JPL-Caltech",
+          "nota": "Guijarros claros y grises incrustados en el suelo, muy de cerca"
+        },
+        {
+          "id": "SIF_2011_0845475020_042EBY_N0920000SRLC04003_0000LMJ",
+          "cameraLabel": "WATSON",
+          "sol": 2011,
+          "takenUtc": "2026-10-17T02:35:30.448Z",
+          "src": "photos/WATSON/SIF_2011_0845475020_042EBY_N0920000SRLC04003_0000LMJ.jpg",
+          "fullRes": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02011/ids/edr/browse/shrlc/SIF_2011_0845475020_042EBY_N0920000SRLC04003_0000LMJ01.png",
+          "link": "https://mars.nasa.gov/mars2020/multimedia/raw-images/SIF_2011_0845475020_042EBY_N0920000SRLC04003_0000LMJ",
+          "credit": "NASA/JPL-Caltech",
+          "nota": "Sombra de la torreta y del brazo sobre la roca y la arena"
+        },
+        {
+          "id": "SIF_2008_0845210704_074EBY_N0911496SRLC00354_0000LMJ",
+          "cameraLabel": "WATSON",
+          "sol": 2008,
+          "takenUtc": "2026-10-14T01:10:34.350Z",
+          "src": "photos/WATSON/SIF_2008_0845210704_074EBY_N0911496SRLC00354_0000LMJ.jpg",
+          "fullRes": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02008/ids/edr/browse/shrlc/SIF_2008_0845210704_074EBY_N0911496SRLC00354_0000LMJ02.png",
+          "link": "https://mars.nasa.gov/mars2020/multimedia/raw-images/SIF_2008_0845210704_074EBY_N0911496SRLC00354_0000LMJ",
+          "credit": "NASA/JPL-Caltech",
+          "nota": "Textura moteada naranja y marrón de una roca, muy de cerca"
+        }
+      ]
+    }
+  }
+}

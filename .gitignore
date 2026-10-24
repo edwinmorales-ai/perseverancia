@@ -1,0 +1,5 @@
+node_modules
+dist
+checks
+.claude/settings.local.json
+.DS_Store
