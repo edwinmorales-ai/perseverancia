@@ -525,3 +525,7 @@ Cada fase termina con algo que se puede ver y probar en el navegador.
   4. `git push`.
 - **Primer despliegue:** build ✓ y deploy ✓. La simulación y las fotos responden 200, pero `mapa-del-repo.html` daba 404 porque Vite solo compilaba `index.html`. Se agregó como segunda entrada del build (`rolldownOptions.input`) y el README enlaza a la versión publicada.
 - **Sitio:** https://edwinmorales-ai.github.io/perseverancia/ · **Repositorio:** https://github.com/edwinmorales-ai/perseverancia
+- **Verificación en el sitio publicado:**
+  - Los dos despliegues terminaron bien (`b70deaa` y `f4145a3`), y la simulación y el mapa responden 200.
+  - En el navegador la escena carga y se anima.
+  - El punto de WATSON abre su foto desde `github.io` (1200 px, «Sol 2011 · hace 8 días») y la consola no muestra errores.
