@@ -19,7 +19,7 @@ npm run check    # revisión automática con Chrome: capturas en checks/ y error
 bun run build    # versión para publicar, en dist/
 ```
 
-`mapa-del-repo.html` explica en lenguaje simple cómo está armado [Open MCT](https://github.com/nasa/openmct) y cómo se le conectaría la telemetría de Percy.
+[El mapa de Open MCT](https://edwinmorales-ai.github.io/perseverancia/mapa-del-repo.html) (`mapa-del-repo.html`) explica en lenguaje simple cómo está armado [Open MCT](https://github.com/nasa/openmct) y cómo se le conectaría la telemetría de Percy.
 
 El proceso completo de construcción está registrado, paso a paso, en la bitácora de `CLAUDE.md`.
 

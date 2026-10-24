@@ -85,7 +85,9 @@ Versiones instaladas: `three@0.186.1`, `vite@8.3.5`, `lil-gui@0.21.0`.
 - `scripts/check.mjs`, `scripts/photos/*.mjs` — revisión automática y curación de fotos.
 - `mapa-del-repo.html` — página explicativa de Open MCT y de cómo conectarle la telemetría de Percy.
 - `.claude/launch.json` — configuraciones para abrir en el panel del navegador el servidor de desarrollo (`perseverancia-dev`) y el build de producción (`perseverancia-preview`).
-- `vite.config.js` — rutas relativas (`base: './'`) para que el build funcione en cualquier subruta.
+- `vite.config.js` — rutas relativas (`base: './'`) para que el build funcione en cualquier subruta, y dos páginas de entrada (simulación y mapa de Open MCT).
+- `.github/workflows/deploy.yml` — compila con bun y publica `dist/` en GitHub Pages en cada push a `main`.
+- `README.md` — presentación del repositorio público, enlaces y créditos de las fotos de la NASA.
 
 ## Depuración
 
@@ -144,7 +146,7 @@ Cada fase termina con algo que se puede ver y probar en el navegador.
   Huellas de las ruedas, polvo al moverse, panel con telemetría (velocidad, distancia, inclinación), Ingenuity opcional, ajuste de rendimiento.
   *Listo cuando:* la simulación se ve completa y corre fluida.
 
-- [ ] **Fase 7 — Publicación**
+- [x] **Fase 7 — Publicación**
   Build de producción y publicación en la web.
   *Listo cuando:* hay un enlace público para compartir la simulación.
 
@@ -505,3 +507,21 @@ Cada fase termina con algo que se puede ver y probar en el navegador.
 - `vite.config.js`: el aviso de tamaño sube a 800 kB, porque el paquete pasó a ~700 kB (~182 kB comprimido) con el post-proceso.
 - **Verificación final:** `npm run check` y `npm run check -- --build` terminan en 0. Escena completa, 4/4 cámaras con foto real y ningún error de consola.
 - **Siguiente paso:** retomar la Fase 7. El usuario debe elegir dónde publicar (GitHub Pages o página de claude.ai) y con qué cuenta.
+
+### 2026-10-24 — Fase 7 completada: publicación en GitHub Pages
+- **Decisión del usuario:** repositorio público `edwinmorales-ai/perseverancia`, despliegue con GitHub Actions y commits firmados con la identidad git ya configurada (Edwin Morales, correo noreply de `edevelopy`).
+- **Revisión antes de subir:**
+  - Se buscaron claves y tokens en todos los archivos y no apareció ninguno.
+  - `.claude/settings.local.json` (permisos locales de Claude Code) se agregó al `.gitignore` y no se subió.
+  - Tampoco se suben `node_modules`, `dist` ni `checks`.
+- **README.md nuevo:** qué es, enlace al sitio, controles, comandos y créditos de las fotos de la NASA (NASA/JPL-Caltech, Mastcam-Z con ASU).
+- **`.github/workflows/deploy.yml`:**
+  - En cada push a `main`: checkout, bun 1.3.14, `bun install --frozen-lockfile` y `bun run build`.
+  - Sube `dist/` como artefacto de Pages y lo publica con `actions/deploy-pages`.
+- **Pasos:**
+  1. `git init -b main` y primer commit (`b70deaa`) con 59 archivos.
+  2. `gh repo create --public`.
+  3. Pages activado en modo "workflow" con la API **antes** del primer push, para que el despliegue no falle.
+  4. `git push`.
+- **Primer despliegue:** build ✓ y deploy ✓. La simulación y las fotos responden 200, pero `mapa-del-repo.html` daba 404 porque Vite solo compilaba `index.html`. Se agregó como segunda entrada del build (`rolldownOptions.input`) y el README enlaza a la versión publicada.
+- **Sitio:** https://edwinmorales-ai.github.io/perseverancia/ · **Repositorio:** https://github.com/edwinmorales-ai/perseverancia
